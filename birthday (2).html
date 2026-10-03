@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Birthday!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ffb6c1; --pink-deep:#ff85a2; --lav:#c9a7f0; --cream:#fff7f0;
+  --text:#5a3e4d; --accent:#ff6f91;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+html,body{height:100%;margin:0;}
+body{
+  font-family:'Quicksand',sans-serif;
+  background:linear-gradient(135deg,#ffe1ec,#ffd6e8 40%,#e9d6ff);
+  color:var(--text);
+  overflow:hidden;
+  position:relative;
+}
+.script{font-family:'Dancing Script',cursive;}
+
+/* floating hearts background */
+.bg-hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.bg-hearts span{position:absolute;bottom:-10%;font-size:22px;opacity:.55;animation:float 12s linear infinite;}
+@keyframes float{
+  0%{transform:translateY(0) rotate(0deg);opacity:0;}
+  10%{opacity:.6;}
+  100%{transform:translateY(-115vh) rotate(360deg);opacity:0;}
+}
+
+.app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;}
+
+.pages{flex:1;position:relative;overflow:hidden;}
+.page{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:28px 20px 90px;
+  opacity:0;transform:translateX(40px);
+  transition:opacity .5s ease, transform .5s ease;
+  pointer-events:none;
+  overflow-y:auto;
+}
+.page.active{opacity:1;transform:translateX(0);pointer-events:auto;}
+.page.leaving{transform:translateX(-40px);}
+
+h1{font-size:clamp(28px,6vw,46px);margin:0 0 8px;color:var(--accent);}
+h2{font-family:'Dancing Script',cursive;font-size:clamp(26px,5vw,40px);color:var(--pink-deep);margin:0 0 14px;}
+p{font-size:clamp(15px,2.3vw,18px);line-height:1.6;max-width:560px;margin:0 auto 10px;}
+
+.card{
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(6px);
+  border-radius:24px;
+  padding:26px 22px;
+  max-width:600px;
+  width:100%;
+  box-shadow:0 10px 30px rgba(255,111,145,.18);
+}
+
+button, .btn{
+  font-family:'Quicksand',sans-serif;font-weight:700;
+  background:var(--accent);color:#fff;border:none;border-radius:50px;
+  padding:12px 26px;font-size:15px;cursor:pointer;
+  box-shadow:0 6px 16px rgba(255,111,145,.4);
+  transition:transform .2s ease;
+  margin-top:14px;
+}
+button:hover{transform:translateY(-2px) scale(1.03);}
+button:active{transform:scale(.97);}
+
+/* nav dots */
+.nav{
+  position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:14px;z-index:5;
+}
+.dots{display:flex;gap:8px;}
+.dot{width:9px;height:9px;border-radius:50%;background:#fff;opacity:.5;border:1px solid var(--pink-deep);cursor:pointer;}
+.dot.active{opacity:1;background:var(--accent);transform:scale(1.2);}
+.arrow{
+  background:#fff;color:var(--accent);border:2px solid var(--accent);
+  width:38px;height:38px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+/* balloons page 1 */
+.balloons{display:flex;gap:14px;justify-content:center;margin:16px 0;flex-wrap:wrap;}
+.balloon{font-size:44px;animation:bob 3s ease-in-out infinite;}
+.balloon:nth-child(2){animation-delay:.4s;}
+.balloon:nth-child(3){animation-delay:.8s;}
+.balloon:nth-child(4){animation-delay:1.2s;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+
+/* reasons */
+.reasons{display:grid;gap:12px;text-align:left;max-width:520px;margin:10px auto;}
+.reason{
+  background:#fff;border-radius:16px;padding:14px 16px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);display:flex;gap:10px;align-items:flex-start;
+  transition:transform .15s ease;
+}
+.reason:hover{transform:translateX(4px);}
+.reason .emo{font-size:20px;}
+.reason .full{display:none;font-size:14px;opacity:.8;margin-top:4px;}
+.reason.open .full{display:block;}
+
+/* gift box */
+.gift{font-size:90px;cursor:pointer;user-select:none;transition:transform .25s;}
+.gift:hover{transform:scale(1.08) rotate(-3deg);}
+.surprise-msg{display:none;margin-top:14px;}
+.surprise-msg.show{display:block;animation:pop .4s ease;}
+@keyframes pop{0%{transform:scale(.6);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+/* wish box */
+textarea{
+  width:100%;max-width:480px;border-radius:14px;border:2px solid var(--pink);
+  padding:12px;font-family:inherit;font-size:14px;resize:none;min-height:80px;
+}
+.wish-out{margin-top:14px;font-family:'Dancing Script',cursive;font-size:22px;color:var(--pink-deep);display:none;}
+.wish-out.show{display:block;}
+
+/* letter page */
+.letter-wrap{
+  background:#fffdf8;border-radius:18px;padding:30px 26px;max-width:600px;width:100%;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);text-align:left;position:relative;
+}
+.letter-wrap::before{content:"💌";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:34px;}
+#letterText{white-space:pre-wrap;font-size:15px;line-height:1.8;min-height:220px;}
+.sign{margin-top:18px;font-family:'Dancing Script',cursive;font-size:26px;color:var(--pink-deep);}
+
+/* confetti canvas */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:10;}
+
+@media (max-width:480px){
+  .balloon{font-size:34px;}
+  .gift{font-size:70px;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-hearts" id="bgHearts"></div>
+<canvas id="confetti"></canvas>
+
+<!-- 🎵 BACKGROUND MUSIC: replace the src below with your song's data URI (see instructions at bottom of file) -->
+<audio id="bgMusic" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+<button id="musicBtn" onclick="toggleMusic()" title="Play/pause music"
+  style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:20;
+  width:44px;height:44px;border-radius:50%;background:#fff;color:var(--accent);
+  border:2px solid var(--accent);font-size:18px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.12);margin:0;padding:0;">🔇</button>
+
+<div class="app">
+  <div class="pages" id="pages">
+
+    <!-- PAGE 1: Welcome -->
+    <section class="page active" data-i="0">
+      <div class="balloons">
+        <span class="balloon">🎈</span><span class="balloon">🎉</span>
+        <span class="balloon">🎈</span><span class="balloon">🎂</span>
+      </div>
+      <h1>Happy Birthday Aadhyasa ❤️🎂</h1>
+      <div class="card" style="margin-top:6px;">
+        <p>I hope tumhara ye birthday tumhare liye bahut saari happiness, smiles aur beautiful memories lekar aaye. Hamesha aise hi cute, happy aur positive rehna. 🫶🏻</p>
+        <p>May all your dreams and wishes come true, and may you always have reasons to smile. ✨</p>
+        <p>Once again, Happy Birthday Dodo! ❤️🎉</p>
+      </div>
+      <button onclick="goTo(1)">Let's begin ✨</button>
+    </section>
+
+    <!-- PAGE 2: About her -->
+    <section class="page" data-i="1">
+      <div class="card">
+        <h2>Do Lafzon Mein... 🌷</h2>
+        <p class="script" style="font-size:22px;line-height:1.9;">
+          Teri muskaan mein woh baat hai,<br>
+          Jo har mausam ko khoobsurat bana de,<br>
+          Aadhyasa jaisi dost mil jaaye jinhe,<br>
+          Unki zindagi khud-ba-khud sanwar jaaye.
+        </p>
+        <p class="script" style="font-size:22px;line-height:1.9;">
+          Na jaane kyun teri baaton mein sukoon hai,<br>
+          Tera hona hi kaafi hai, yehi junoon hai,<br>
+          Chahe duniya kuch bhi kahe humari dosti ko,<br>
+          Mere liye toh tu sabse anmol namoon hai.
+        </p>
+        <p style="margin-top:14px;">Bas itna kehna tha — happiest birthday, Aadhyasa. Duniya ki sabse achi dost ho tum. 💗</p>
+      </div>
+      <button onclick="goTo(2)">Next: reasons you're awesome →</button>
+    </section>
+
+    <!-- PAGE 3: Reasons (interactive) -->
+    <section class="page" data-i="2">
+      <h2>Reasons You're Awesome</h2>
+      <p style="margin-bottom:14px;">(tap each one 👇)</p>
+      <div class="reasons" id="reasonsList">
+        <div class="reason"><span class="emo">😊</span><div><b>You make people feel comfortable.</b><div class="full">Being around you is just... easy. That's rarer than people think.</div></div></div>
+        <div class="reason"><span class="emo">🎯</span><div><b>You go after what you want.</b><div class="full">Watching you chase your goals is genuinely inspiring.</div></div></div>
+        <div class="reason"><span class="emo">🤝</span><div><b>You're a ridiculously good friend.</b><div class="full">You show up, you listen, and you remember the little things.</div></div></div>
+        <div class="reason"><span class="emo">😂</span><div><b>Your humor is unmatched.</b><div class="full">Zero notes. Certified funny.</div></div></div>
+      </div>
+      <button onclick="goTo(3)">Next: make a wish →</button>
+    </section>
+
+    <!-- PAGE 4: Wish -->
+    <section class="page" data-i="3">
+      <h2>Make a Birthday Wish 🌠</h2>
+      <p>Type it below and blow out the candle.</p>
+      <textarea id="wishInput" placeholder="I wish for..."></textarea><br>
+      <button onclick="makeWish()">🕯️ Blow out the candle</button>
+      <div class="wish-out" id="wishOut"></div>
+      <div><button onclick="goTo(4)" style="margin-top:22px;">Next: a surprise →</button></div>
+    </section>
+
+    <!-- PAGE 5: Gift -->
+    <section class="page" data-i="4">
+      <h2>One More Thing...</h2>
+      <p>There's a little surprise in here. Go on, open it.</p>
+      <div class="gift" id="giftBox" onclick="openGift()">🎁</div>
+      <div class="surprise-msg" id="surpriseMsg">
+        <p class="script" style="font-size:24px;">You are so, so loved 💗<br>Never forget that.</p>
+      </div>
+      <div><button onclick="goTo(5)" style="margin-top:10px;">One last page: your letter →</button></div>
+    </section>
+
+    <!-- PAGE 6: Letter -->
+    <section class="page" data-i="5">
+      <h2>For You 💌</h2>
+      <div class="letter-wrap">
+        <div id="letterText"></div>
+        <div class="sign">— Kartik</div>
+      </div>
+      <button onclick="burstConfetti(true)" style="margin-top:20px;">🎊 Celebrate!</button>
+    </section>
+
+  </div>
+
+  <div class="nav">
+    <div class="arrow" onclick="shift(-1)">‹</div>
+    <div class="dots" id="dots"></div>
+    <div class="arrow" onclick="shift(1)">›</div>
+  </div>
+</div>
+
+<script>
+const total = 6;
+let current = 0;
+
+// background floating hearts
+const bg = document.getElementById('bgHearts');
+const heartEmojis = ['💗','💕','🌸','✨'];
+for(let i=0;i<14;i++){
+  const s = document.createElement('span');
+  s.textContent = heartEmojis[i % heartEmojis.length];
+  s.style.left = Math.random()*100+'%';
+  s.style.animationDuration = (9+Math.random()*8)+'s';
+  s.style.animationDelay = (Math.random()*10)+'s';
+  s.style.fontSize = (16+Math.random()*16)+'px';
+  bg.appendChild(s);
+}
+
+// dots
+const dotsEl = document.getElementById('dots');
+for(let i=0;i<total;i++){
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+const dotNodes = [...dotsEl.children];
+const pageNodes = [...document.querySelectorAll('.page')];
+
+function goTo(i){
+  if(i<0||i>=total) return;
+  pageNodes[current].classList.remove('active');
+  pageNodes[current].classList.add('leaving');
+  setTimeout(()=>pageNodes[current].classList.remove('leaving'),500);
+  current = i;
+  pageNodes[current].classList.add('active');
+  dotNodes.forEach((d,idx)=>d.classList.toggle('active', idx===i));
+  if(i===total-1) typeLetter();
+}
+function shift(d){ goTo(current+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') shift(1);
+  if(e.key==='ArrowLeft') shift(-1);
+});
+
+// reasons toggle
+document.querySelectorAll('.reason').forEach(r=>{
+  r.addEventListener('click', ()=> r.classList.toggle('open'));
+});
+
+// wish
+function makeWish(){
+  const val = document.getElementById('wishInput').value.trim();
+  const out = document.getElementById('wishOut');
+  out.textContent = val ? `🕯️ Your wish "${val}" has been sent to the universe...` : '🕯️ Wish sent to the universe...';
+  out.classList.add('show');
+  burstConfetti(false);
+}
+
+// gift
+function openGift(){
+  document.getElementById('surpriseMsg').classList.add('show');
+  document.getElementById('giftBox').textContent = '🎁✨';
+  burstConfetti(false);
+}
+
+// letter typing effect
+const letterMsg = `Aadhyasa, ya phir Dodo 😄❤️, tum mere liye sirf ek achhi dost nahi ho, balki tum woh insaan ho jo mere liye sabse khaas hai. Tum un logon mein se nahi ho jo bas zindagi ka ek hissa hote hain, tum unse bhi zyada special ho jinke saath bina soche-samjhe dil ki har baat share ki ja sakti hai. Mujhe bahut achha lagta hai ki tum mere saath itni frank ho aur apne dukh-sukh, achhi-buri har baat mujhse share karti ho. Tumhari ye simplicity, tumhara cute sa nature aur sabse zyada tumhara mujh par itna trust karna mere liye genuinely bahut special hai.
+
+Aur tumhari tareef ki baat ho toh tumhare baal bhi kamaal ke hain—jab tum unhe khula rakhti ho toh tum aur bhi cute lagti ho. Tumhare woh soft-soft se haath aur tumhare cute se gaal… sach mein, tumhari ye chhoti-chhoti cheezein tumhe aur bhi special banati hain. ❤️
+
+Aur haan, tumhara dance karna bhi mujhe bahut achha lagta hai. 💃❤️ Pata nahi tumhe khud iska kitna andaaza hai, lekin jab tum dance karti ho na, toh tumhari woh khushi aur confidence tumhe aur bhi special bana dete hain. Shayad isi liye tumhari hobbies mein dance mere liye sabse cute cheezon mein se ek hai. 😄✨
+
+Bas meri hamesha yahi wish rahegi ki humari ye bonding aise hi bani rahe. Chahe waqt kitna bhi badal jaaye ya zindagi humein kahin bhi le jaaye, humare beech ki ye comfort aur understanding kabhi kam na ho. Tum apni har achhi-buri baat mujhse aise hi share karti rehna, aur main bhi hamesha tumhari baatein waise hi sunta rahun. Tum hamesha khush raho, haste raho aur apni ye pyari si smile kabhi mat khona.
+
+Happy Birthday, Aadhyasa! 🎂❤️ Aur haan Dodo, aaj ka din tumhare naam. Hamesha khush raho, enjoy karo aur aise hi rehna jaise tum ho. ✨🫶`;
+let typed = false;
+function typeLetter(){
+  if(typed) return;
+  typed = true;
+  const el = document.getElementById('letterText');
+  let i = 0;
+  function step(){
+    el.textContent = letterMsg.slice(0,i);
+    i++;
+    if(i<=letterMsg.length) setTimeout(step, 18);
+  }
+  step();
+}
+
+// background music
+const bgMusic = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let musicOn = false;
+function toggleMusic(){
+  if(!bgMusic.querySelector('source').src){
+    musicBtn.textContent = '🎵';
+    setTimeout(()=>musicBtn.textContent = musicOn ? '🔊' : '🔇', 1200);
+    return; // no song added yet
+  }
+  if(musicOn){ bgMusic.pause(); musicBtn.textContent='🔇'; }
+  else { bgMusic.play().catch(()=>{}); musicBtn.textContent='🔊'; }
+  musicOn = !musicOn;
+}
+
+// confetti
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+resize(); addEventListener('resize', resize);
+let particles = [];
+function burstConfetti(big){
+  const colors = ['#ff85a2','#ffd166','#c9a7f0','#ffb6c1','#8ecae6'];
+  const count = big ? 140 : 60;
+  for(let i=0;i<count;i++){
+    particles.push({
+      x: canvas.width/2, y: canvas.height/2,
+      vx: (Math.random()-0.5)*10, vy: (Math.random()-1.2)*10,
+      size: 4+Math.random()*5, color: colors[Math.floor(Math.random()*colors.length)],
+      life: 80+Math.random()*40
+    });
+  }
+}
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life--;
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,p.size,p.size);
+  });
+  particles = particles.filter(p=>p.life>0);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+
+<!--
+  HOW TO ADD YOUR SONG LATER:
+  1. Pick a short mp3 clip (keep it small, ideally under ~3-4 MB, so the page stays light).
+  2. Convert it to a "data URI" — e.g. search "mp3 to base64 data uri converter" online,
+     or in a terminal: base64 -w0 song.mp3 (then wrap the result as shown below).
+  3. Find the line near the top of <body>:
+         <source src="" type="audio/mpeg">
+     and replace the empty src="" with:
+         src="data:audio/mpeg;base64,PASTE_YOUR_LONG_BASE64_STRING_HERE"
+  4. Save, re-open the page. Tap the 🔇 button (top-right) to start the music — browsers
+     block autoplay with sound, so it needs that one tap.
+  Tell Claude the song's name/mood and ask to add it, and this can be done for you directly.
+-->
+</body>
+</html>
